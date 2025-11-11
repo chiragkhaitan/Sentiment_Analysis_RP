@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Reputation Monitoring</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .model-selector {
+            margin-bottom: 20px;
+        }
+
+        .model-selector label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .result-section {
+            display: none;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .result-section.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-positive {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+
+        .result-negative {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+
+        .result-content {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .sentiment-icon {
+            font-size: 48px;
+        }
+
+        .result-text {
+            flex: 1;
+        }
+
+        .result-text h3 {
+            margin-bottom: 5px;
+            font-size: 1.5em;
+        }
+
+        .result-text p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .confidence-bar {
+            background: rgba(0,0,0,0.1);
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.5s ease;
+        }
+
+        .examples {
+            margin-top: 20px;
+        }
+
+        .examples h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .example-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .example-btn {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .example-btn:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border: 2px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Social Media Reputation Monitoring</h1>
+            <p>Analyze the sentiment of social media posts using Machine Learning</p>
+        </div>
+
+        {% if not models_loaded %}
+        <div class="card">
+            <div class="info-box">
+                <strong>⚠ Models not loaded!</strong><br>
+                Please run <code>python train_model.py</code> first to train the models.
+            </div>
+        </div>
+        {% else %}
+
+        <div class="card">
+            <div class="input-section">
+                <label for="tweet-input">Enter your tweet or text:</label>
+                <textarea 
+                    id="tweet-input" 
+                    rows="4" 
+                    placeholder="Type or paste a tweet here... e.g., 'I love this product! It's amazing!'"
+                ></textarea>
+            </div>
+
+            <div class="model-selector">
+                <label for="model-select">Select Model:</label>
+                <select id="model-select">
+                    <option value="lr">Logistic Regression (Recommended)</option>
+                    <option value="bnb">Bernoulli Naive Bayes</option>
+                    <option value="svc">Linear SVC</option>
+                </select>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="analyzeSentiment()">
+                    🔍 Analyze Sentiment
+                </button>
+                <button class="btn-secondary" onclick="clearAll()">
+                    🗑️ Clear
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing...</p>
+            </div>
+
+            <div class="error-message" id="error-message"></div>
+
+            <div class="result-section" id="result-section">
+                <div class="result-content">
+                    <div class="sentiment-icon" id="sentiment-icon"></div>
+                    <div class="result-text">
+                        <h3 id="sentiment-label"></h3>
+                        <p id="sentiment-model"></p>
+                        <p id="sentiment-confidence"></p>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidence-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="examples">
+                <h3>📝 Try these examples:</h3>
+                <div class="example-buttons">
+                    <button class="example-btn" onclick="setExample('I love this product! It\'s amazing and works perfectly!')">
+                        Positive Example
+                    </button>
+                    <button class="example-btn" onclick="setExample('This is the worst experience ever. I hate it!')">
+                        Negative Example
+                    </button>
+                    <button class="example-btn" onclick="setExample('Just had the best day at the beach! 😊')">
+                        With Emoji
+                    </button>
+                    <button class="example-btn" onclick="setExample('@Apple Your new iPhone is terrible. Very disappointed.')">
+                        With Mention
+                    </button>
+                    <button class="example-btn" onclick="setExample('Check out this link: https://example.com')">
+                        With URL
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">ℹ️ About This Project</h3>
+            <p style="color: #666; line-height: 1.6;">
+                This sentiment analysis system is trained on 1.6 million tweets from the Sentiment140 dataset.
+                It uses natural language processing and machine learning to classify tweets as positive or negative.
+                The system preprocesses text by removing URLs, handling emojis, and normalizing the text before
+                making predictions using trained models.
+            </p>
+        </div>
+
+        {% endif %}
+
+        <div class="footer">
+            <p>Built with Flask, scikit-learn, and NLTK | SMRM © 2025</p>
+        </div>
+    </div>
+
+    <script>
+        function analyzeSentiment() {
+            const text = document.getElementById('tweet-input').value.trim();
+            const model = document.getElementById('model-select').value;
+            
+            if (!text) {
+                showError('Please enter some text to analyze!');
+                return;
+            }
+
+            // Hide previous results and errors
+            document.getElementById('result-section').classList.remove('show');
+            document.getElementById('error-message').classList.remove('show');
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+
+            // Make API call
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: text,
+                    model: model
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').classList.remove('show');
+                
+                if (data.success) {
+                    showResult(data);
+                } else {
+                    showError(data.error || 'An error occurred');
+                }
+            })
+            .catch(error => {
+                document.getElementById('loading').classList.remove('show');
+                showError('Network error: ' + error.message);
+            });
+        }
+
+        function showResult(data) {
+            const resultSection = document.getElementById('result-section');
+            const isPositive = data.sentiment === 'Positive';
+            
+            // Set sentiment class
+            resultSection.className = 'result-section show ' + (isPositive ? 'result-positive' : 'result-negative');
+            
+            // Set icon
+            document.getElementById('sentiment-icon').textContent = isPositive ? '😊' : '😞';
+            
+            // Set text
+            document.getElementById('sentiment-label').textContent = data.sentiment + ' Sentiment';
+            document.getElementById('sentiment-model').textContent = 'Model: ' + data.model;
+            
+            if (data.confidence) {
+                document.getElementById('sentiment-confidence').textContent = 
+                    'Confidence: ' + data.confidence + '%';
+                document.getElementById('confidence-fill').style.width = data.confidence + '%';
+            } else {
+                document.getElementById('sentiment-confidence').textContent = '';
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+        }
+
+        function clearAll() {
+            document.getElementById('tweet-input').value = '';
+            document.getElementById('result-section').classList.remove('show');
+            document.getElementById('error-message').classList.remove('show');
+        }
+
+        function setExample(text) {
+            document.getElementById('tweet-input').value = text;
+            document.getElementById('result-section').classList.remove('show');
+            document.getElementById('error-message').classList.remove('show');
+        }
+
+        // Allow Enter key to submit (with Shift+Enter for new line)
+        document.getElementById('tweet-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                analyzeSentiment();
+            }
+        });
+    </script>
+</body>
+</html>
