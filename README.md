@@ -1,4 +1,4 @@
-# Twitter Sentiment Analysis - Local Implementation
+# Social Nedia Reputation Monitoring - Local Implementation
 
 A complete machine learning project for analyzing sentiment in tweets using Natural Language Processing and various ML algorithms.
 
