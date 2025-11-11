@@ -234,14 +234,10 @@ This is a learning project. Feel free to:
 - Add new features
 - Optimize performance
 
-## 📄 License
-
-This project is for educational purposes. The Sentiment140 dataset has its own license terms.
 
 ## 🙏 Acknowledgments
 
 - Sentiment140 dataset by Stanford University
-- Original GitHub repository: gokseltokur/Social-Media-Sentiment-Analysis
 - Kaggle notebook references
 
 ## 📧 Contact
